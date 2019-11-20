@@ -14,5 +14,8 @@ create table vehicle_register.VeicoloImmatricolato
 
 create table vehicle_register.Persona
 (
-	
+	Nome varchar,
+	Cognome varchar,
+	Id_persoma int not null,
+			   primary key
 );
