@@ -11,3 +11,8 @@ create table vehicle_register.VeicoloImmatricolato
 	cavalli float4,
 	vel_max int
 );
+
+create table vehicle_register.Modello
+(
+
+);
