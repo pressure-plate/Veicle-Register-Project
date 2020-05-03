@@ -16,13 +16,17 @@ Contenuto delle cartelle
 Divisione dei Compiti
 ----
 * Analisi dei prerequisiti **Alberto**
-
+    > finito
     > Scrivere sulla relazione quali sono i dettagli e le criticità del progetto
 
-* disegno dello schema ER **Maesrto**
+* Per martedi vedere capitolo 6-7-8
 
-    > Fare il disegno dell'ER con il [Draw.io](https://draw.io)
+* disegno dello schema ER **Tutti**
+    > Per martedi' prossimo
+    > Fare il disegno dell'ER con [lucidchart](https://www.lucidchart.com/)
 
+* Progettazione Logica **Tutti**
+    > Se si riesce martedi', altrimenti slitta
 
 ----
 ## Come scrivere la relazione
