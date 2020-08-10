@@ -1,38 +1,85 @@
-create schema vehicle_register;
+CREATE DATABASE VehicleRegister;
 
 
-create table vehicle_register.VeicoloImmatricolato
+DROP TABLE IF EXISTS Cessione;
+DROP TABLE IF EXISTS Propietario;
+DROP TABLE IF EXISTS VeicoloImmatricolato;
+DROP TABLE IF EXISTS Modello;
+DROP TABLE IF EXISTS CasaProduttrice;
+DROP TABLE IF EXISTS Versione;
+
+CREATE SEQUENCE id_pratica_serial;
+
+CREATE TABLE Cessione
 (
-	ID_veicolo int not null
-		constraint VeicoloImmatricolato_pk
-			primary key,
-	targa varchar(10),
-	cilindrata float4,
-	cavalli float4,
-	vel_max int
+	id_pratica integer NOT NULL DEFAULT nextval('id_pratica_serial'),
+	ex_propietario varchar(10),
+	nuovo_propietario float4,
+	data_passaggio timestamp,
+  PRIMARY KEY(id_pratica),
+  CONSTRAINT veicolo_immatricolato
+    FOREIGN KEY(veicolo_immatricolato)
+      REFERENCES VeicoloImmatricolato(targa)
 );
 
-create table vehicle_register.Modello
+CREATE TABLE Propietario(
+  cf varchar(20),
+  nome varchar(20),
+  cognome varchar(20),
+  residenza varchar(50),
+  PRIMARY KEY(cf)
+);
+
+CREATE TABLE VeicoloImmatricolato
 (
-  ID_modello int primary key,
+	targa varchar(10) not null,
+	data_ummatricolazione timestamp not null,
+  PRIMARY KEY(targa),
+  CONSTRAINT propietario
+    FOREIGN KEY(propietario)
+      REFERENCES VeicoloImmatricolato(targa),
+  CONSTRAINT modello
+    FOREIGN KEY(modello)
+      REFERENCES VeicoloImmatricolato(targa)
+  
+);
+
+create table Modello
+(
+  id_modello integer,
   nome_modello varchar(10),
-  alimentazione int(2),
-  fabbrica int references vehicle_register.Fabbrica(ID_fabbrica)
+  alimentazione int,
+  fabbrica int references vehicle_register.Fabbrica(ID_fabbrica),
+  PRIMARY KEY(id_modello),
+  CONSTRAINT versione
+    FOREIGN KEY(versione)
+      REFERENCES Versione(id_versione),
+  CONSTRAINT casa_produttrice
+    FOREIGN KEY(casa_produttrice)
+      REFERENCES CasaProduttrice(nome)
+  
+  
 );
 
-create table vehicle_register.Fabbrica
+CREATE TABLE CasaProduttrice
 (
-  ID_fabbrica int primary key,
-  città varchar(10),
+  nome varchar(20),
+  direttore varchar(30),
+  contatto_telefonico varchar(30),
+  indirizzo_sede varchar(30),
+  gruppo varchar(30),
+  PRIMARY KEY(nome)
 );
 
-create table vehicle_register.Versione
+
+CREATE SEQUENCE id_versione_serial;
+
+create table Versione
 (
-  ID_versione int primary key,
-  anno_versione int(4),
-  mese_versione int(2),
+  id_versione integer NOT NULL DEFAULT nextval('id_versione_serial'),
+  numero_versione int,
+  numero_pezzi_prodotti int,
   data_inizio_produzione date,
   data_fine_produzione date,
-  numero_pezzi_prodotti int default 0,
-  modello int references vehicle_register.modello(ID_modello)
+  PRIMARY KEY(id_versione)
 );
