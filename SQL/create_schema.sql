@@ -1,4 +1,4 @@
-CREATE DATABASE VehicleRegister;
+-- CREATE SCHEMA VehicleRegister;
 
 
 DROP TABLE IF EXISTS Cessione;
@@ -32,15 +32,29 @@ CREATE TABLE CasaProduttrice
   PRIMARY KEY(nome)
 );
 
+create table Modello
+(
+  id_modello integer,
+  nome_modello varchar(10),
+  alimentazione int,
+  casa_produttrice varchar(20), -- fk
+  PRIMARY KEY(id_modello),
+  CONSTRAINT fk_casa_produttrice
+    FOREIGN KEY(casa_produttrice)
+      REFERENCES CasaProduttrice(nome)
+);
+
 CREATE TABLE VeicoloImmatricolato
 (
 	targa varchar(10) not null,
 	data_ummatricolazione timestamp not null,
+  propietario varchar(20), -- fk
+  modello integer, -- fk
   PRIMARY KEY(targa),
-  CONSTRAINT propietario
+  CONSTRAINT fk_propietario
     FOREIGN KEY(propietario)
       REFERENCES Propietario(cf),
-  CONSTRAINT modello
+  CONSTRAINT fk_modello
     FOREIGN KEY(modello)
       REFERENCES Modello(id_modello)
 );
@@ -51,10 +65,11 @@ CREATE TABLE Cessione
 	ex_propietario varchar(10),
 	nuovo_propietario varchar(10),
 	data_passaggio timestamp,
+  veicolo_immatricolato varchar(10), -- fk
 	PRIMARY KEY(id_pratica),
-	CONSTRAINT veicolo_immatricolato
+	CONSTRAINT fk_veicolo_immatricolato
 		FOREIGN KEY(veicolo_immatricolato)
-		REFERENCES VeicoloImmatricolato(targa)
+		  REFERENCES VeicoloImmatricolato(targa)
 );
 
 create table Versione
@@ -65,16 +80,4 @@ create table Versione
   data_inizio_produzione date,
   data_fine_produzione date,
   PRIMARY KEY(id_versione)
-);
-
-create table Modello
-(
-  id_modello integer,
-  nome_modello varchar(10),
-  alimentazione int,
-  fabbrica int references vehicle_register.Fabbrica(ID_fabbrica),
-  PRIMARY KEY(id_modello),
-  CONSTRAINT casa_produttrice
-    FOREIGN KEY(casa_produttrice)
-      REFERENCES CasaProduttrice(nome)
 );
