@@ -8,19 +8,11 @@ DROP TABLE IF EXISTS Modello;
 DROP TABLE IF EXISTS CasaProduttrice;
 DROP TABLE IF EXISTS Versione;
 
-CREATE SEQUENCE id_pratica_serial;
+DROP SEQUENCE IF EXISTS id_pratica_serial;
+DROP SEQUENCE IF EXISTS id_versione_serial;
 
-CREATE TABLE Cessione
-(
-	id_pratica integer NOT NULL DEFAULT nextval('id_pratica_serial'),
-	ex_propietario varchar(10),
-	nuovo_propietario float4,
-	data_passaggio timestamp,
-  PRIMARY KEY(id_pratica),
-  CONSTRAINT veicolo_immatricolato
-    FOREIGN KEY(veicolo_immatricolato)
-      REFERENCES VeicoloImmatricolato(targa)
-);
+CREATE SEQUENCE id_pratica_serial;
+CREATE SEQUENCE id_versione_serial;
 
 CREATE TABLE Propietario(
   cf varchar(20),
@@ -28,37 +20,6 @@ CREATE TABLE Propietario(
   cognome varchar(20),
   residenza varchar(50),
   PRIMARY KEY(cf)
-);
-
-CREATE TABLE VeicoloImmatricolato
-(
-	targa varchar(10) not null,
-	data_ummatricolazione timestamp not null,
-  PRIMARY KEY(targa),
-  CONSTRAINT propietario
-    FOREIGN KEY(propietario)
-      REFERENCES VeicoloImmatricolato(targa),
-  CONSTRAINT modello
-    FOREIGN KEY(modello)
-      REFERENCES VeicoloImmatricolato(targa)
-  
-);
-
-create table Modello
-(
-  id_modello integer,
-  nome_modello varchar(10),
-  alimentazione int,
-  fabbrica int references vehicle_register.Fabbrica(ID_fabbrica),
-  PRIMARY KEY(id_modello),
-  CONSTRAINT versione
-    FOREIGN KEY(versione)
-      REFERENCES Versione(id_versione),
-  CONSTRAINT casa_produttrice
-    FOREIGN KEY(casa_produttrice)
-      REFERENCES CasaProduttrice(nome)
-  
-  
 );
 
 CREATE TABLE CasaProduttrice
@@ -71,8 +32,30 @@ CREATE TABLE CasaProduttrice
   PRIMARY KEY(nome)
 );
 
+CREATE TABLE VeicoloImmatricolato
+(
+	targa varchar(10) not null,
+	data_ummatricolazione timestamp not null,
+  PRIMARY KEY(targa),
+  CONSTRAINT propietario
+    FOREIGN KEY(propietario)
+      REFERENCES Propietario(cf),
+  CONSTRAINT modello
+    FOREIGN KEY(modello)
+      REFERENCES Modello(id_modello)
+);
 
-CREATE SEQUENCE id_versione_serial;
+CREATE TABLE Cessione
+(
+	id_pratica integer NOT NULL DEFAULT nextval('id_pratica_serial'),
+	ex_propietario varchar(10),
+	nuovo_propietario varchar(10),
+	data_passaggio timestamp,
+	PRIMARY KEY(id_pratica),
+	CONSTRAINT veicolo_immatricolato
+		FOREIGN KEY(veicolo_immatricolato)
+		REFERENCES VeicoloImmatricolato(targa)
+);
 
 create table Versione
 (
@@ -82,4 +65,16 @@ create table Versione
   data_inizio_produzione date,
   data_fine_produzione date,
   PRIMARY KEY(id_versione)
+);
+
+create table Modello
+(
+  id_modello integer,
+  nome_modello varchar(10),
+  alimentazione int,
+  fabbrica int references vehicle_register.Fabbrica(ID_fabbrica),
+  PRIMARY KEY(id_modello),
+  CONSTRAINT casa_produttrice
+    FOREIGN KEY(casa_produttrice)
+      REFERENCES CasaProduttrice(nome)
 );
