@@ -18,28 +18,32 @@ motorizzazioni = readLines("./R/data/motorizzazione.txt")
 
 
 versione = data.frame(
-    matricola = 1:10000
-    nome=sample(v_nomi, 10000, replace = T),
-    cognome=sample(v_cognomi, 10000, replace = T),
-    sesso=sample(c("m","f"), 10000, replace=T)
+    numero_versione = 1:num,
+    numero_pezzi_prodotti=sample(numeroPezzi, num, replace = T),
+    data_inizio_produzione=sample(data, num, replace = T),
+    data_fine_produzione=sample(data, num, replace=T),
+    modello=sample(idModelli, num, replace = F)
 )
 
 cessione = data.frame(
-    matricola = 1:10000
-    nome=sample(v_nomi, 10000, replace = T),
-    cognome=sample(v_cognomi, 10000, replace = T),
-    sesso=sample(c("m","f"), 10000, replace=T)
+    id_pratica = 1:num,
+    data_passaggio=sample(data, num, replace = T),
+    vecchio_propietario=sample(codiciFiscali, num, replace = T),
+    nuovo_propietario=sample(codiciFiscali, num, replace = T),
+    veicolo_immatricolato=sample(targa, num, replace=T)
 )
 
 veicoloImmatricolato = data.frame(
-    matricola = 1:10000
-    nome=sample(v_nomi, 10000, replace = T),
-    cognome=sample(v_cognomi, 10000, replace = T),
-    sesso=sample(c("m","f"), 10000, replace=T)
+    targa=sample(targa, num, replace = F),
+    data_immatricolazione=sample(data, num, replace = T),
+    rottamato=sample(c(T, F), num, replace=T),
+    propietario=sample(codiciFiscali, num, replace = T),
+    modello=sample(idModelli, num, replace = T),
+    versione=sample(numeroVersioni, num, replace = T)
 )
 
 modello = data.frame(
-    id_modello=(idModelli, num, replace = F)
+    id_modello=sample(idModelli, num, replace = F),
     cilindrata=sample(cilindrate, num, replace = T),
     cavalli_fiscali=sample(cavalliFiscali, num, replace = T),
     velocita_massima=sample(velocitaMassime, num, replace = T),
@@ -58,7 +62,7 @@ casaProduttrice = data.frame(
 )
 
 proprietario = data.frame(
-    nome=cf(codiciFiscali, num, replace = F),
+    cf=sample(codiciFiscali, num, replace = F),
     nome=sample(nomi, num, replace = T),
     cognome=sample(cognomi, num, replace=T),
     residenza=sample(indirizzi, num, replace = T)
@@ -68,19 +72,18 @@ proprietario = data.frame(
 
 #install.packages("RPostgreSQL")
 #library("RPostgreSQL")
-drv = dbDriver("PostgreSQL")
+#drv = dbDriver("PostgreSQL")
 
 
 
 con = dbConnect(drv , dbname = "postgres", host =  "127.0.0.1", port = "5432", user = "postgres", password = "admin")
 print(con)
 
-dbWriteTable( con, name=c("public", "CasaProduttrice"), value=casaProduttrice1)
-dbWriteTable( con, name=c("public", "Proprietario"), value=proprietario1)
-dbWriteTable( con, name=c("public", "Cessione"), value=cessione1)
-dbWriteTable( con, name=c("public", "Modello"), value=modello1)
-dbWriteTable( con, name=c("public", "Versione"), value=versione1)
-dbWriteTable( con, name=c("public", "VeicoloImmatricolato"), value=veicoloImmatricolato1)
-
+dbWriteTable( con, name=c("public", "Proprietario"), value=proprietario)
+dbWriteTable( con, name=c("public", "CasaProduttrice"), value=casaProduttrice)
+dbWriteTable( con, name=c("public", "Modello"), value=modello)
+dbWriteTable( con, name=c("public", "Versione"), value=versione)
+dbWriteTable( con, name=c("public", "VeicoloImmatricolato"), value=veicoloImmatricolato)
+dbWriteTable( con, name=c("public", "Cessione"), value=cessione)
 
 dbDisconnect(con)
