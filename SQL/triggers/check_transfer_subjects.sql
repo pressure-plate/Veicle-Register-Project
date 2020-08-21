@@ -16,6 +16,7 @@ $$
         -- se la persona e' la stessa abort
         if (vecchio_propietario == nuovo_propietario) then
             raise exception 'In proprietario non puo cedere il veicolo a se stesso';
+            return null;
         end if;
         return new;
     end;
