@@ -5,7 +5,6 @@ $$
     declare
         vecchio_propietario id_propietario;
 	    nuovo_propietario id_propietario;
-    
     begin
         SELECT cf INTO vecchio_propietario FROM Propietario
             WHERE cf = new.vecchio_propietario;
@@ -19,6 +18,11 @@ $$
             return null;
         end if;
 
+        if (vecchio_propietario == nuovo_propietario) then
+            raise exception 'In proprietario non puo cedere il veicolo a se stesso';
+            return null;
+        end if;
+
         -- aggiornameno del propietario nella tabella VeicoloImmatiricolato
         UPDATE VeicoloImmatricolato SET propietario = new.nuovo_propietario
         WHERE (targa = new.veicolo_immatricolato AND propietario = new.vecchio_propietario)
@@ -26,8 +30,56 @@ $$
     end;
 $$;
 
+create trigger controlla_cessione
+before insert on Cessione
+for each row
+execute procedure controlla_cessione();
 
+create trigger controlla_cessione
+before update on Cessione
+for each row
+when (new.vecchio_propietario <> old.vecchio_propietario) and (new.nuovo_propietario <> old.nuovo_propietario)
+execute procedure controlla_cessione();
+
+
+-- ----------------------------------------------
+
+
+-- controlla che il veicolo che si sta cedendo e' del proprietario
 create or replace function controlla_cessione_veicolo_rottamato()
+returns trigger
+language plpgsql as
+$$  
+    declare    
+        propietario_corrente id_veicolo_immatricolato
+    begin
+        SELECT propietario INTO propietario_corrente FROM VeicoloImmatricolato
+            WHERE targa = new.veicolo_immatricolato;
+
+        -- se la persona e' la stessa abort
+        if (propietario <> new.vecchio_propietario) then
+            raise exception 'Il vecchio propietario deve possedere il veicolo';
+            return null;
+        end if;
+        return new;
+    end;
+$$;
+
+create trigger controlla_cessione_veicolo_rottamato
+before create on Cessione
+for each row
+execute procedure controlla_cessione_veicolo_rottamato();
+
+create trigger controlla_cessione_veicolo_rottamato
+before update on Cessione
+for each row
+execute procedure controlla_cessione_veicolo_rottamato();
+
+
+-- ----------------------------------------------
+
+
+create or replace function controlla_cessione_posessore_veicolo()
 returns trigger
 language plpgsql as
 $$  
@@ -46,28 +98,14 @@ $$
     end;
 $$;
 
--- controllo proprietario
-create trigger controlla_cessione
-before insert on Cessione
-for each row
-execute procedure controlla_cessione();
-
-create trigger controlla_cessione
-before update on Cessione
-for each row
-when ((new.vecchio_propietario <> old.vecchio_propietario) and (new.nuovo_propietario <> old.nuovo_propietario))
-execute procedure controlla_cessione();
-
--- Aggiornamento della cessiona
-create trigger controlla_cessione_upd_cessione
-before update on Cessione
-for each row
-when (new.data_passaggio <> old.data_passaggio)
-execute procedure controlla_cessione();
 
 -- Aggiornamento del veicolo immatricolato
-create trigger controlla_cessione_upd_veicolo_immatricolato
-before update on VeicoloImmatricolato
+create trigger controlla_cessione_posessore_veicolo
+before create on Cessione
 for each row
-when (new.data_immatricolazione <> old.data_immatricolazione)
-execute procedure controlla_cessione();
+execute procedure controlla_cessione_posessore_veicolo();
+
+create trigger controlla_cessione_posessore_veicolo
+before update on Cessione
+for each row
+execute procedure controlla_cessione_posessore_veicolo();

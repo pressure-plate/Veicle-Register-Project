@@ -17,9 +17,8 @@ DROP TYPE IF EXISTS veicoli;
 DROP DOMAIN IF EXISTS id_propietario;
 DROP DOMAIN IF EXISTS id_veicolo_immatricolato;
 
--- creazione delle 2 sequenza auto incrementanti
+-- creazione delle sequenze auto incrementanti
 CREATE SEQUENCE id_pratica_serial;
-CREATE SEQUENCE id_versione_serial;
 
 -- creazione di un tipo per l'enumerazione
 CREATE TYPE enum_alimentazioni AS ENUM('diesel', 'benzina', 'metano', 'gpl', 'elettrico', 'altro');
@@ -70,19 +69,18 @@ create table Modello
   id_modello integer,
   cilindrata real NOT NULL,
   cavalli_fiscali real NOT NULL,
-  velocita_massima int NOT NULL,
-  numero_posti int NOT NULL,
+  velocita_massima integer NOT NULL,
+  numero_posti integer NOT NULL,
   alimentazione alimentazioni NOT NULL,
   classe_veicolo veicoli NOT NULL, -- tipo di veicolo auto, moto, camion
   motorizzazione string, -- dettagli sul tipo di motore
   
-  casa_produttrice string, -- fk
-  casa_produttrice string, -- fk
+  casa_produttrice string , -- fk
   
   PRIMARY KEY(id_modello),
   
   FOREIGN KEY(casa_produttrice) REFERENCES CasaProduttrice(nome)
-    on update cascade on delete no action
+    on update cascade on delete cascade
 );
 
 
@@ -90,7 +88,7 @@ create table Versione
 (
   numero_versione integer,
   numero_pezzi_prodotti numero_pezzi,
-  data_inizio_produzione date,
+  data_inizio_produzione date NOT NULL,
   data_fine_produzione date,
 
   modello integer, --fk
@@ -142,12 +140,15 @@ CREATE TABLE Cessione
   CONSTRAINT fk_vecchio_propietario
 		FOREIGN KEY(vecchio_propietario)
       REFERENCES Propietario(cf),
+        on update cascade on delete set null
 
   CONSTRAINT fk_nuovo_propietario
 		FOREIGN KEY(nuovo_propietario)
       REFERENCES Propietario(cf),
+        on update cascade on delete set null
 
 	CONSTRAINT fk_veicolo_immatricolato
 		FOREIGN KEY(veicolo_immatricolato)
 		  REFERENCES VeicoloImmatricolato(targa)
+        on update cascade on delete cascade
 );
