@@ -1,1 +1,7 @@
--- un veicolo immatricolato non puo' essere mai eliminato
+start transaction;
+
+
+set search_path to MotorizzazioneCivile, public;
+
+
+commit;
