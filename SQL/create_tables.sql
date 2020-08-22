@@ -83,8 +83,10 @@ create table Modello
   
   PRIMARY KEY(id_modello),
   
-  FOREIGN KEY(casa_produttrice) REFERENCES CasaProduttrice(nome)
-    on update cascade on delete cascade
+  CONSTRAINT fk_modello
+    FOREIGN KEY(casa_produttrice) 
+      REFERENCES CasaProduttrice(nome)
+        on update cascade on delete cascade
 );
 
 
@@ -101,6 +103,7 @@ create table Versione
   CONSTRAINT fk_modello
 		FOREIGN KEY(modello)
 		  REFERENCES Modello(id_modello)
+        on update cascade on delete cascade
 );
 
 
@@ -156,5 +159,5 @@ CREATE TABLE Cessione
 	CONSTRAINT fk_veicolo_immatricolato
 		FOREIGN KEY(veicolo_immatricolato)
 		  REFERENCES VeicoloImmatricolato(targa)
-        on update cascade on delete cascade
+        on update cascade on delete no action
 );
