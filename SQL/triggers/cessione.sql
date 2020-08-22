@@ -1,9 +1,15 @@
-DROP TRIGGER IF EXISTS controlla_cessione_posessore_veicolo ON Cessione;
-DROP TRIGGER IF EXISTS controlla_cessione_veicolo_rottamato ON Cessione;
-DROP TRIGGER IF EXISTS controlla_soggetti_cessione ON Cessione;
+tostart transaction;
+
+
+set search_path to MotorizzazioneCivile, public;
+
+
 DROP TRIGGER IF EXISTS update_propietaio ON Cessione;
+DROP TRIGGER IF EXISTS controlla_cessione_stesso_propietario ON Cessione;
+DROP TRIGGER IF EXISTS controlla_cessione_intestatario_corrente ON Cessione;
+DROP TRIGGER IF EXISTS controlla_cessione_date ON Cessione;
+DROP TRIGGER IF EXISTS controlla_cessione_veicolo_rottamato ON Cessione;
 DROP TRIGGER IF EXISTS impedisci_aggiornamento_cessione ON Cessione;
-DROP TRIGGER IF EXISTS controlla_cessione ON Cessione;
 
 
 create or replace function update_propietaio()
@@ -11,6 +17,8 @@ returns trigger
 language plpgsql as
 $$
     begin
+        set search_path to MotorizzazioneCivile, public;
+        
         UPDATE VeicoloImmatricolato SET propietario = new.nuovo_propietario
         WHERE (targa = new.veicolo_immatricolato AND propietario = new.vecchio_propietario);
 
@@ -35,6 +43,8 @@ $$
         vecchio_propietario id_propietario;
 	    nuovo_propietario id_propietario;
     begin
+        set search_path to MotorizzazioneCivile, public;
+
         SELECT cf INTO vecchio_propietario FROM Propietario
             WHERE cf = new.vecchio_propietario;
         
@@ -51,10 +61,10 @@ $$
     end;
 $$;
 
-create trigger controlla_cessione
+create trigger controlla_cessione_stesso_propietario
 before insert on Cessione
 for each row
-execute procedure controlla_cessione();
+execute procedure controlla_cessione_stesso_propietario();
 
 
 -- ----------------------------------------------
@@ -67,6 +77,8 @@ $$
     declare
         vecchio_propietario id_propietario;
     begin
+        set search_path to MotorizzazioneCivile, public;
+
         SELECT propietario INTO vecchio_propietario FROM VeicoloImmatricolato
             WHERE targa = new.veicolo_immatricolato;
 
@@ -99,6 +111,7 @@ $$
         data_immatricolazione timestamp;
         cessioni_successive record;
     begin
+        set search_path to MotorizzazioneCivile, public;
 
         SELECT data_immatricolazione INTO data_immatricolazione FROM VeicoloImmatricolato
             WHERE veicolo_immatricolato = new.veicolo_immatricolato;
@@ -138,10 +151,15 @@ returns trigger
 language plpgsql as
 $$
     declare
-        rottamato BOOLEAN;
+        rottamato boolean;
     begin
+        set search_path to MotorizzazioneCivile, public;
+
+        SELECT rottamato INTO rottamato FROM VeicoloImmatricolato
+            WHERE veicolo_immatricolato = new.veicolo_immatricolato;
+        
         -- se il veicolo e' gia' stato rottamato abort
-        if (veicolo_immatricolato.rottamato = true) then
+        if (rottamato = true) then
             raise exception 'Impossibile cedere un veicolo rottamato';
             return null;
         end if;
@@ -178,3 +196,5 @@ before update on Cessione
 for each row
 execute procedure impedisci_aggiornamento_cessione();
 
+
+commit;
