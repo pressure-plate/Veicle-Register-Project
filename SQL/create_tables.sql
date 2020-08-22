@@ -9,20 +9,25 @@ DROP TABLE IF EXISTS CasaProduttrice;
 DROP TABLE IF EXISTS Propietario;
 
 DROP SEQUENCE IF EXISTS id_pratica_serial;
-DROP SEQUENCE IF EXISTS id_versione_serial;
+
 
 DROP TYPE IF EXISTS alimentazioni;
 DROP TYPE IF EXISTS veicoli;
 
+DROP TYPE IF EXISTS enum_alimentazioni;
+DROP TYPE IF EXISTS enum_veicoli;
+
 DROP DOMAIN IF EXISTS id_propietario;
 DROP DOMAIN IF EXISTS id_veicolo_immatricolato;
+DROP DOMAIN IF EXISTS string;
+DROP DOMAIN IF EXISTS numero_pezzi;
 
 -- creazione delle sequenze auto incrementanti
 CREATE SEQUENCE id_pratica_serial;
 
 -- creazione di un tipo per l'enumerazione
 CREATE TYPE enum_alimentazioni AS ENUM('diesel', 'benzina', 'metano', 'gpl', 'elettrico', 'altro');
-CREATE TYPE enum_veicoli AS ENUM('macchina', 'moto', 'motociclo', 'camion', 'trattore', 'altro');
+CREATE TYPE enum_veicoli AS ENUM('auto', 'moto', 'motociclo', 'camion', 'trattore', 'altro');
 
 -- creazione di tipi dedicati per le chiavi primarie 
 -- che devono essere usate molteplici volte come fk
@@ -35,10 +40,10 @@ CREATE DOMAIN numero_pezzi as int
     not null
     check (value > 0);
 
-CREATE DOMAIN alimentazioni as enum_alimentazioni
+CREATE DOMAIN alimentazioni AS enum_alimentazioni
   not null;
 
-CREATE DOMAIN veicoli as enum_veicoli
+CREATE DOMAIN veicoli AS enum_veicoli
   not null;
 
 
@@ -73,7 +78,6 @@ create table Modello
   numero_posti integer NOT NULL,
   alimentazione alimentazioni NOT NULL,
   classe_veicolo veicoli NOT NULL, -- tipo di veicolo auto, moto, camion
-  motorizzazione string, -- dettagli sul tipo di motore
   
   casa_produttrice string , -- fk
   
@@ -86,14 +90,13 @@ create table Modello
 
 create table Versione
 (
-  numero_versione integer,
-  numero_pezzi_prodotti numero_pezzi,
+  nome_versione string,
   data_inizio_produzione date NOT NULL,
   data_fine_produzione date,
 
   modello integer, --fk
 
-  PRIMARY KEY(numero_versione, modello),
+  PRIMARY KEY(nome_versione, modello),
 
   CONSTRAINT fk_modello
 		FOREIGN KEY(modello)
@@ -103,13 +106,13 @@ create table Versione
 
 CREATE TABLE VeicoloImmatricolato
 (
-	targa id_veicolo_immatricolato,
-	data_immatricolazione timestamp NOT NULL,
-  rottamato boolean not null default 0
+  targa id_veicolo_immatricolato,
+  data_immatricolazione timestamp NOT NULL,
+  rottamato boolean not null default false,
   
   propietario id_propietario, -- fk
   modello integer, -- fk
-  versione integer -- fk
+  versione string, -- fk
   
   PRIMARY KEY(targa),
   
@@ -121,9 +124,12 @@ CREATE TABLE VeicoloImmatricolato
   CONSTRAINT fk_modello
     FOREIGN KEY(modello)
       REFERENCES Modello(id_modello)
-    
-  FOREIGN KEY(versione) REFERENCES Versione(numero_versione)
-    on update cascade on delete no action
+        on update cascade on delete no action,
+  
+  CONSTRAINT fk_versione
+    FOREIGN KEY(versione, modello) 
+      REFERENCES Versione(nome_versione, modello)
+        on update cascade on delete no action
 );
 
 CREATE TABLE Cessione
@@ -139,13 +145,13 @@ CREATE TABLE Cessione
 
   CONSTRAINT fk_vecchio_propietario
 		FOREIGN KEY(vecchio_propietario)
-      REFERENCES Propietario(cf),
-        on update cascade on delete set null
+      REFERENCES Propietario(cf)
+        on update cascade on delete set null,
 
   CONSTRAINT fk_nuovo_propietario
 		FOREIGN KEY(nuovo_propietario)
-      REFERENCES Propietario(cf),
-        on update cascade on delete set null
+      REFERENCES Propietario(cf)
+        on update cascade on delete set null,
 
 	CONSTRAINT fk_veicolo_immatricolato
 		FOREIGN KEY(veicolo_immatricolato)

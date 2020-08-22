@@ -13,32 +13,38 @@ $$
             WHERE cf = new.nuovo_propietario;
 
         -- se la persona e' la stessa abort
-        if (vecchio_propietario == nuovo_propietario) then
+        if (vecchio_propietario = nuovo_propietario) then
             raise exception 'In proprietario non puo cedere il veicolo a se stesso';
             return null;
         end if;
 
-        if (vecchio_propietario == nuovo_propietario) then
+        if (vecchio_propietario = nuovo_propietario) then
             raise exception 'In proprietario non puo cedere il veicolo a se stesso';
             return null;
         end if;
 
         -- aggiornameno del propietario nella tabella VeicoloImmatiricolato
-        UPDATE VeicoloImmatricolato SET propietario = new.nuovo_propietario
-        WHERE (targa = new.veicolo_immatricolato AND propietario = new.vecchio_propietario)
+        -- UPDATE VeicoloImmatricolato SET propietario = new.nuovo_propietario
+        -- WHERE (targa = new.veicolo_immatricolato AND propietario = new.vecchio_propietario);
         return new;
     end;
 $$;
+
+DROP TRIGGER IF EXISTS controlla_cessione ON Cessione;
+DROP TRIGGER IF EXISTS controlla_cessione_upd ON Cessione;
 
 create trigger controlla_cessione
 before insert on Cessione
 for each row
 execute procedure controlla_cessione();
 
-create trigger controlla_cessione
+create trigger controlla_cessione_upd
 before update on Cessione
 for each row
-when (new.vecchio_propietario <> old.vecchio_propietario) and (new.nuovo_propietario <> old.nuovo_propietario)
+when (
+    (new.vecchio_propietario <> old.vecchio_propietario) and 
+    (new.nuovo_propietario <> old.nuovo_propietario)
+)
 execute procedure controlla_cessione();
 
 
@@ -51,26 +57,32 @@ returns trigger
 language plpgsql as
 $$  
     declare    
-        propietario_corrente id_veicolo_immatricolato
+        propietario_corrente id_propietario; 
     begin
         SELECT propietario INTO propietario_corrente FROM VeicoloImmatricolato
             WHERE targa = new.veicolo_immatricolato;
 
+        raise notice 'propietario corrente: "%" ', propietario_corrente;
+
         -- se la persona e' la stessa abort
-        if (propietario <> new.vecchio_propietario) then
-            raise exception 'Il vecchio propietario deve possedere il veicolo';
+        if (propietario_corrente <> new.vecchio_propietario) then
+            raise exception 'Il vecchio propietario deve avere intestato il veicolo che sta cedendo';
             return null;
         end if;
         return new;
     end;
 $$;
 
+
+DROP TRIGGER IF EXISTS controlla_cessione_veicolo_rottamato ON Cessione;
+DROP TRIGGER IF EXISTS controlla_cessione_veicolo_rottamato_upd ON Cessione;
+
 create trigger controlla_cessione_veicolo_rottamato
-before create on Cessione
+before insert on Cessione
 for each row
 execute procedure controlla_cessione_veicolo_rottamato();
 
-create trigger controlla_cessione_veicolo_rottamato
+create trigger controlla_cessione_veicolo_rottamato_upd
 before update on Cessione
 for each row
 execute procedure controlla_cessione_veicolo_rottamato();
@@ -84,13 +96,13 @@ returns trigger
 language plpgsql as
 $$  
     declare    
-        stato_veicolo boolean
+        stato_veicolo boolean;
     begin
         SELECT rottamato INTO stato_veicolo FROM VeicoloImmatricolato
             WHERE targa = new.veicolo_immatricolato;
 
         -- se la persona e' la stessa abort
-        if (stato_veicolo == 1) then
+        if (stato_veicolo = true) then
             raise exception 'Impossibile cedere un veicolo rottamato';
             return null;
         end if;
@@ -98,14 +110,16 @@ $$
     end;
 $$;
 
+DROP TRIGGER IF EXISTS controlla_cessione_posessore_veicolo ON Cessione;
+DROP TRIGGER IF EXISTS controlla_cessione_posessore_veicolo_upd ON Cessione;
 
 -- Aggiornamento del veicolo immatricolato
 create trigger controlla_cessione_posessore_veicolo
-before create on Cessione
+before insert on Cessione
 for each row
 execute procedure controlla_cessione_posessore_veicolo();
 
-create trigger controlla_cessione_posessore_veicolo
+create trigger controlla_cessione_posessore_veicolo_upd
 before update on Cessione
 for each row
 execute procedure controlla_cessione_posessore_veicolo();
