@@ -12,6 +12,12 @@ DROP TRIGGER IF EXISTS controlla_cessione_veicolo_rottamato ON Cessione;
 DROP TRIGGER IF EXISTS impedisci_aggiornamento_cessione ON Cessione;
 
 
+-- ---------------------------------------------
+-- Una volta che tutti i trigger su cessione sono stati verificati
+-- Aggiorna i dati del nuovo propietario anche sulla tabella VeicoloImmatricolato
+-- Ultimando cosi effettivamente il passaggio di propieta'
+-- ---------------------------------------------
+
 create or replace function update_propietaio()
 returns trigger
 language plpgsql as
@@ -20,7 +26,9 @@ $$
         set search_path to MotorizzazioneCivile, public;
         
         UPDATE VeicoloImmatricolato SET propietario = new.nuovo_propietario
-        WHERE (targa = new.veicolo_immatricolato AND propietario = new.vecchio_propietario);
+        WHERE (targa = new.veicolo_immatricolato);
+
+        raise notice 'propietario aggiornato in VeicoloImmatricolato: "%" ', new.nuovo_propietario;
 
         return new;
     end;
@@ -32,8 +40,9 @@ for each row
 execute procedure update_propietaio();
 
 
--- ----------------------------------------------
-
+-- ---------------------------------------------
+-- Impedisci ad un propietario di cedere il veicolo a se stesso
+-- ---------------------------------------------
 
 create or replace function controlla_cessione_stesso_propietario()
 returns trigger
@@ -67,8 +76,10 @@ for each row
 execute procedure controlla_cessione_stesso_propietario();
 
 
--- ----------------------------------------------
-
+-- ---------------------------------------------
+-- La cessione non puo' avvenire se il vecchio_propietario
+-- non e' il propietario del veicolo che sta cedendo
+-- ---------------------------------------------
 
 create or replace function controlla_cessione_intestatario_corrente()
 returns trigger
@@ -100,8 +111,13 @@ for each row
 execute procedure controlla_cessione_intestatario_corrente();
 
 
--- ----------------------------------------------
-
+-- ---------------------------------------------
+-- La data di cessione del veicolo non puo' essere antecedente 
+-- all'immatricolazione dello stesso;
+--
+-- Inoltre la data di cessione non puo' essere antecedente ad un'altra cessione 
+-- per lo stesso veicolo
+-- ---------------------------------------------
 
 create or replace function controlla_cessione_date()
 returns trigger
@@ -113,10 +129,10 @@ $$
     begin
         set search_path to MotorizzazioneCivile, public;
 
-        SELECT data_immatricolazione INTO data_immatricolazione FROM VeicoloImmatricolato
-            WHERE veicolo_immatricolato = new.veicolo_immatricolato;
+        SELECT VeicoloImmatricolato.data_immatricolazione INTO data_immatricolazione FROM VeicoloImmatricolato
+            WHERE targa = new.veicolo_immatricolato;
 
-        -- se la data di immatricolazione e' sucessica a quella di passaggio abort
+        -- se la data di immatricolazione e' sucessiva a quella di passaggio abort
         if (new.data_passaggio < data_immatricolazione) then
             raise exception 'Impossibile cedere un veicolo prima che sia immatricolato';
             return null;
@@ -124,8 +140,6 @@ $$
 
         SELECT * INTO cessioni_successive FROM Cessione
             WHERE data_passaggio >= new.data_passaggio;
-
-        raise notice 'cessioni successive: "%" ', cessioni_successive;
 
         -- se la data di passaggio e' inferiore ad un passaggio gia' esistente abort
         if (cessioni_successive is not null) then
@@ -143,8 +157,9 @@ for each row
 execute procedure controlla_cessione_date(); 
 
 
--- ----------------------------------------------
-
+-- ---------------------------------------------
+-- Non e' possibile cedere un veicolo rottamato
+-- ---------------------------------------------
 
 create or replace function controlla_cessione_veicolo_rottamato()
 returns trigger
@@ -155,8 +170,8 @@ $$
     begin
         set search_path to MotorizzazioneCivile, public;
 
-        SELECT rottamato INTO rottamato FROM VeicoloImmatricolato
-            WHERE veicolo_immatricolato = new.veicolo_immatricolato;
+        SELECT VeicoloImmatricolato.rottamato INTO rottamato FROM VeicoloImmatricolato
+            WHERE targa = new.veicolo_immatricolato;
         
         -- se il veicolo e' gia' stato rottamato abort
         if (rottamato = true) then
@@ -174,27 +189,32 @@ for each row
 execute procedure controlla_cessione_veicolo_rottamato();
 
 
--- ----------------------------------------------
+-- ---------------------------------------------
+-- Non e' possibile cancellare una cessione sucessivamente alla creazione
+-- In quanto l'incerimento in cessione modifica la tabella VeicoloImmatricolato
+-- E' necessario eseguire una nuova cessione per riparare ad un errore
+-- ---------------------------------------------
 
-
-create or replace function impedisci_aggiornamento_cessione()
+create or replace function impedisci_modifica_su_cessione()
 returns trigger
 language plpgsql as
 $$  
     begin
-        -- se la persona e' la stessa abort
-        if (new <> old) then
-            raise exception 'Impossibile modificare/cancellare una cessione, per correggere un errore, effettuare una nuova cessione al propietario precedente e ripetere';
+        -- impedisci modifica
+        raise exception 'Impossibile modificare/cancellare una cessione, per correggere un errore, effettuare una nuova cessione';
             return null;
-        end if;
-        return new;
     end;
 $$;
 
-create trigger impedisci_aggiornamento_cessione
+create trigger impedisci_modifica_su_cessione_upd
 before update on Cessione
 for each row
-execute procedure impedisci_aggiornamento_cessione();
+execute procedure impedisci_modifica_su_cessione();
+
+create trigger impedisci_modifica_su_cessione_del
+before delete on Cessione
+for each row
+execute procedure impedisci_modifica_su_cessione();
 
 
 commit;

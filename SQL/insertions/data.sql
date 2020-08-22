@@ -43,7 +43,7 @@ values ('G5233CE', '2020-07-28 13:10:33', 'DKHTMG49H24I896S', 'A4', 'SportBack')
 
 -- Cessione
 insert into Cessione(data_passaggio, vecchio_propietario, nuovo_propietario, veicolo_immatricolato)
-values ('2020-05-22 22:10:25', 'DKHTMG49H24I896S', 'VFKNDG91H65C623X', 'G4489SS'); -- viola per data
+values ('2020-05-22 22:10:25', 'DKHTMG49H24I896S', 'VFKNDG91H65C623X', 'G4489SS');
 insert into Cessione(data_passaggio, vecchio_propietario, nuovo_propietario, veicolo_immatricolato)
 values ('2020-05-22 22:10:25', 'VFKNDG91H65C623X', 'DKHTMG49H24I896S', 'G4489SS');
 

@@ -4,6 +4,11 @@ start transaction;
 set search_path to MotorizzazioneCivile, public;
 
 
+
+-- ---------------------------------------------
+-- Non necessariom usare CONSTRAINT su creazione tabella
+-- ---------------------------------------------
+
 create or replace function propietario_controlla_cancellazione()
 returns trigger
 language plpgsql as
