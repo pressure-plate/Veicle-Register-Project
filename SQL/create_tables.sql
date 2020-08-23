@@ -1,9 +1,16 @@
--- CREATE SCHEMA VehicleRegister;
+start transaction;
+
+DROP schema if EXISTS MotorizzazioneCivile CASCADE;
+create schema MotorizzazioneCivile;
+set search_path to MotorizzazioneCivile, public;
 
 
+-- ---------------------------------------------
+-- Rimozione dei Tipi DEBUG
+-- ---------------------------------------------
 DROP TABLE IF EXISTS Cessione;
 DROP TABLE IF EXISTS VeicoloImmatricolato;
-DROP TABLE IF EXISTS Versione;
+DROP TABLE IF EXISTS Allestimento;
 DROP TABLE IF EXISTS Modello;
 DROP TABLE IF EXISTS CasaProduttrice;
 DROP TABLE IF EXISTS Propietario;
@@ -21,6 +28,11 @@ DROP DOMAIN IF EXISTS id_propietario;
 DROP DOMAIN IF EXISTS id_veicolo_immatricolato;
 DROP DOMAIN IF EXISTS string;
 DROP DOMAIN IF EXISTS numero_pezzi;
+
+
+-- ---------------------------------------------
+-- DEFINIZIONE DOMINI E TIPO
+-- ---------------------------------------------
 
 -- creazione delle sequenze auto incrementanti
 CREATE SEQUENCE id_pratica_serial;
@@ -47,9 +59,10 @@ CREATE DOMAIN veicoli AS enum_veicoli
   not null;
 
 
--- ---------------------------------------------------------------
--- RELAZIONI
--- ---------------------------------------------------------------
+-- ---------------------------------------------
+-- DEFINIZIONE RELAZIONI
+-- ---------------------------------------------
+
 
 CREATE TABLE Propietario(
   cf id_propietario,
@@ -58,6 +71,7 @@ CREATE TABLE Propietario(
   residenza string,
   PRIMARY KEY(cf)
 );
+
 
 CREATE TABLE CasaProduttrice
 (
@@ -71,36 +85,39 @@ CREATE TABLE CasaProduttrice
 
 create table Modello
 (
-  id_modello integer,
+  modello string,
   cilindrata real NOT NULL,
   cavalli_fiscali real NOT NULL,
   velocita_massima integer NOT NULL,
   numero_posti integer NOT NULL,
-  alimentazione alimentazioni NOT NULL,
+  alimentazione alimentazioni NOT NULL, -- benzina, diesel, metano, etc.
   classe_veicolo veicoli NOT NULL, -- tipo di veicolo auto, moto, camion
   
   casa_produttrice string , -- fk
   
-  PRIMARY KEY(id_modello),
+  PRIMARY KEY(modello),
   
-  FOREIGN KEY(casa_produttrice) REFERENCES CasaProduttrice(nome)
-    on update cascade on delete cascade
+  CONSTRAINT fk_modello
+    FOREIGN KEY(casa_produttrice) 
+      REFERENCES CasaProduttrice(nome)
+        on update cascade on delete cascade
 );
 
 
-create table Versione
+create table Allestimento
 (
-  nome_versione string,
+  nome string,
   data_inizio_produzione date NOT NULL,
   data_fine_produzione date,
 
-  modello integer, --fk
+  modello string, --fk
 
-  PRIMARY KEY(nome_versione, modello),
+  PRIMARY KEY(nome, modello),
 
   CONSTRAINT fk_modello
 		FOREIGN KEY(modello)
-		  REFERENCES Modello(id_modello)
+		  REFERENCES Modello(modello)
+        on update cascade on delete cascade
 );
 
 
@@ -111,8 +128,8 @@ CREATE TABLE VeicoloImmatricolato
   rottamato boolean not null default false,
   
   propietario id_propietario, -- fk
-  modello integer, -- fk
-  versione string, -- fk
+  modello string, -- fk
+  allestimento string, -- fk
   
   PRIMARY KEY(targa),
   
@@ -123,14 +140,15 @@ CREATE TABLE VeicoloImmatricolato
   
   CONSTRAINT fk_modello
     FOREIGN KEY(modello)
-      REFERENCES Modello(id_modello)
+      REFERENCES Modello(modello)
         on update cascade on delete no action,
   
-  CONSTRAINT fk_versione
-    FOREIGN KEY(versione, modello) 
-      REFERENCES Versione(nome_versione, modello)
+  CONSTRAINT fk_allestimento
+    FOREIGN KEY(allestimento, modello) 
+      REFERENCES Allestimento(nome, modello)
         on update cascade on delete no action
 );
+
 
 CREATE TABLE Cessione
 (
@@ -156,5 +174,8 @@ CREATE TABLE Cessione
 	CONSTRAINT fk_veicolo_immatricolato
 		FOREIGN KEY(veicolo_immatricolato)
 		  REFERENCES VeicoloImmatricolato(targa)
-        on update cascade on delete cascade
+        on update cascade on delete no action
 );
+
+
+commit;
