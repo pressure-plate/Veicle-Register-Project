@@ -4,7 +4,7 @@ returns trigger
 language plpgsql as
 $$
     begin
-            
+            ra
     end;
 $$;
 
