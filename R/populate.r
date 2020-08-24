@@ -1,4 +1,4 @@
-
+# Leggo i valori da inserire nelle tuple da file di testo
 cognomi = readLines("./R/data/cognomi.txt")
 codiciFiscali = readLines("./R/data/codiciFiscali.txt")
 nomi = readLines("./R/data/names.txt")
@@ -15,6 +15,8 @@ targa = readLines("./R/data/targa.txt")
 velocitaMassime = readLines("./R/data/velocitaMassima.txt")
 allestimenti = readLines("./R/data/allestimento.txt")
 
+# Genero un campione di tuple da inserire nella tabella della relazione Allestimento
+
 numAllestimento = length(allestimenti)
 allestimento = data.frame(
     nome=sample(allestimenti, numAllestimento, replace = F),
@@ -23,6 +25,7 @@ allestimento = data.frame(
     modello=sample(idModelli, numAllestimento, replace = F)
 )
 
+num = 30
 cessione = data.frame(
     data_passaggio=sample(data, num, replace = T),
     vecchio_propietario=sample(codiciFiscali, num, replace = T),
@@ -36,18 +39,18 @@ veicoloImmatricolato = data.frame(
     data_immatricolazione=sample(data, numVeicoloImmatricolato, replace = T),
     propietario=sample(codiciFiscali, numVeicoloImmatricolato, replace = T),
     modello=sample(idModelli, numVeicoloImmatricolato, replace = T),
-    versione=sample(numeroVersioni, numVeicoloImmatricolato, replace = T)
+    allestimento=sample(allestimenti, numVeicoloImmatricolato, replace = T)
 )
 
 numModello = length(idModelli)
 modello = data.frame(
-    id_modello=sample(idModelli, numModello, replace = F),
+    modello=sample(idModelli, numModello, replace = F),
     cilindrata=sample(cilindrate, numModello, replace = T),
     cavalli_fiscali=sample(cavalliFiscali, numModello, replace = T),
     velocita_massima=sample(velocitaMassime, numModello, replace = T),
     numero_posti=sample(numeroPosti, numModello, replace = T),
-    alimentazione=sample(sample(0:5), numModello, replace = T),
-    classe_veicolo=sample(sample(0:5), numModello, replace = T),
+    alimentazione=sample(c('diesel', 'benzina', 'metano', 'gpl', 'elettrico', 'altro'), numModello, replace = T),
+    classe_veicolo=sample(c('auto', 'moto', 'motociclo', 'camion', 'trattore', 'altro'), numModello, replace = T),
     casa_produttrice=sample(caseProduttrici, numModello, replace = T)
 )
 numCasaProduttrice = length(caseProduttrici)
@@ -66,42 +69,52 @@ proprietario = data.frame(
 )
 
 
+# Questo script popola la relazione ‘CasaProduttrice’ con tuple generate casualmente
+
+#Carico in memoria il driver per PostgreSQL e mi connetto al database.
 
 #install.packages("RPostgreSQL")
-#library("RPostgreSQL")
-#drv = dbDriver("PostgreSQL")
+library("RPostgreSQL")
+drv = dbDriver("PostgreSQL")
+con = dbConnect(drv ,
+                dbname = "postgres", 
+                host =  "127.0.0.1", 
+                port = "5432", 
+                user = "postgres", 
+                password = "admin")
 
-
-
-con = dbConnect(drv , dbname = "postgres", host =  "127.0.0.1", port = "5432", user = "postgres", password = "admin")
 print(con)
 
-tryCatch({
-    dbWriteTable( con, name=c("motorizzazionecivile", "propietario"), value=proprietario, append=T, row.names=F)
-}, error=function(e){})
+# Elimino eventuali tuple gia presenti così da evitare errori dovuti alla duplicazione
+# della chiave primaria
+#dbSendQuery(con,
+#            "delete * from motorizzazionecivile.proprietario")
 
-tryCatch({
-    dbWriteTable( con, name=c("motorizzazionecivile", "casaproduttrice"), value=casaProduttrice, append=T, row.names=F)
-}, error=function(e){})
+# Inserisco le tuple nella relazione Proprietario            
 
-tryCatch({
-    dbWriteTable( con, name=c("motorizzazionecivile", "modello"), value=modello, append=T, row.names=F)
-}, error=function(e){})
+    #dbWriteTable(con, name=c("motorizzazionecivile", "propietario"), value=proprietario, append=T, row.names=F)
 
-tryCatch({
-    dbWriteTable( con, name=c("motorizzazionecivile", "allestimento"), value=allestimento, append=T, row.names=F)
-}, error=function(e){})
 
-tryCatch({
+    #dbWriteTable( con, name=c("motorizzazionecivile", "casaproduttrice"), value=casaProduttrice, append=T, row.names=F)
+
+
+    #dbWriteTable( con, name=c("motorizzazionecivile", "modello"), value=modello, append=T, row.names=F)
+
+
+
+    #dbWriteTable( con, name=c("motorizzazionecivile", "allestimento"), value=allestimento, append=T, row.names=F)
+
+
+
     dbWriteTable( con, name=c("motorizzazionecivile", "veicoloimmatricolato"), value=veicoloImmatricolato, append=T, row.names=F)
-}, error=function(e){})
 
-tryCatch({
+
+
     dbWriteTable( con, name=c("motorizzazionecivile", "cessione"), value=cessione, append=T, row.names=F)
-}, error=function(e){})
 
 
 
 
+# Chiudo la connessione con il server
 
 dbDisconnect(con)
