@@ -97,10 +97,10 @@ create table Modello
   
   PRIMARY KEY(modello),
   
-  CONSTRAINT fk_modello
-    FOREIGN KEY(casa_produttrice) 
-      REFERENCES CasaProduttrice(nome)
-        on update cascade on delete cascade
+  -- se la casa produttrice viene eliminata non rimuovere il riferimento
+  FOREIGN KEY(casa_produttrice) 
+    REFERENCES CasaProduttrice(nome)
+      on update cascade on delete no action
 );
 
 
@@ -114,10 +114,10 @@ create table Allestimento
 
   PRIMARY KEY(nome, modello),
 
+  -- impedisci calcellazione modello se ci sono allestimenti
   CONSTRAINT fk_modello
 		FOREIGN KEY(modello)
 		  REFERENCES Modello(modello)
-        on update cascade on delete cascade
 );
 
 
@@ -133,20 +133,21 @@ CREATE TABLE VeicoloImmatricolato
   
   PRIMARY KEY(targa),
   
+  -- impedisci cancellazioe del propietario
   CONSTRAINT fk_propietario
     FOREIGN KEY(propietario) 
       REFERENCES Propietario(cf)
-        on update cascade on delete no action,
-  
+
+  -- permetti la cancellazione di allestimento e modelo
+  -- solo dopo che tutti i veicolo sono rottamati
+
   CONSTRAINT fk_modello
     FOREIGN KEY(modello)
       REFERENCES Modello(modello)
-        on update cascade on delete no action,
-  
+
   CONSTRAINT fk_allestimento
     FOREIGN KEY(allestimento, modello) 
       REFERENCES Allestimento(nome, modello)
-        on update cascade on delete no action
 );
 
 
@@ -161,20 +162,23 @@ CREATE TABLE Cessione
 	
   PRIMARY KEY(id_pratica),
 
-  CONSTRAINT fk_vecchio_propietario
-		FOREIGN KEY(vecchio_propietario)
-      REFERENCES Propietario(cf)
-        on update cascade on delete set null,
+  -- setta a null quando il propietario viene cancellato
+  FOREIGN KEY(vecchio_propietario)
+    REFERENCES Propietario(cf)
+      on update cascade on delete set null,
 
+  -- impedisci la cancellazione del nuovo propietario
+  -- l'eliminazione puo' avvenire solo se prima si elimna il veicolo immatricolato
   CONSTRAINT fk_nuovo_propietario
 		FOREIGN KEY(nuovo_propietario)
       REFERENCES Propietario(cf)
         on update cascade on delete set null,
 
-	CONSTRAINT fk_veicolo_immatricolato
-		FOREIGN KEY(veicolo_immatricolato)
-		  REFERENCES VeicoloImmatricolato(targa)
-        on update cascade on delete no action
+  -- quando il veicolo viene cancellato
+  -- cancella tutte le cessioni
+  FOREIGN KEY(veicolo_immatricolato)
+    REFERENCES VeicoloImmatricolato(targa)
+      on update cascade on delete cascade
 );
 
 
