@@ -1,4 +1,4 @@
-num = 10
+
 cognomi = readLines("./R/data/cognomi.txt")
 codiciFiscali = readLines("./R/data/codiciFiscali.txt")
 nomi = readLines("./R/data/names.txt")
@@ -9,63 +9,60 @@ cilindrate = readLines("./R/data/cilindrata.txt")
 contattiTelefonici = readLines("./R/data/contattoTelefonico.txt")
 data = readLines("./R/data/data.txt")
 idModelli = readLines("./R/data/idModello.txt")
-numeroPezzi = readLines("./R/data/numeroPezzi.txt")
 numeroPosti = readLines("./R/data/numeroPosti.txt")
 numeroVersioni = readLines("./R/data/numeroVersione.txt")
 targa = readLines("./R/data/targa.txt")
 velocitaMassime = readLines("./R/data/velocitaMassima.txt")
-motorizzazioni = readLines("./R/data/motorizzazione.txt")
+allestimenti = readLines("./R/data/allestimento.txt")
 
-
-versione = data.frame(
-    numero_versione = 1:num,
-    numero_pezzi_prodotti=sample(numeroPezzi, num, replace = T),
-    data_inizio_produzione=sample(data, num, replace = T),
-    data_fine_produzione=sample(data, num, replace=T),
-    modello=sample(idModelli, num, replace = F)
+numAllestimento = length(allestimenti)
+allestimento = data.frame(
+    nome=sample(allestimenti, numAllestimento, replace = F),
+    data_inizio_produzione=sample(data, numAllestimento, replace = T),
+    data_fine_produzione=sample(data, numAllestimento, replace=T),
+    modello=sample(idModelli, numAllestimento, replace = F)
 )
 
 cessione = data.frame(
-    id_pratica = 1:num,
     data_passaggio=sample(data, num, replace = T),
     vecchio_propietario=sample(codiciFiscali, num, replace = T),
     nuovo_propietario=sample(codiciFiscali, num, replace = T),
     veicolo_immatricolato=sample(targa, num, replace=T)
 )
 
+numVeicoloImmatricolato = length(targa)
 veicoloImmatricolato = data.frame(
-    targa=sample(targa, num, replace = F),
-    data_immatricolazione=sample(data, num, replace = T),
-    rottamato=sample(c(T, F), num, replace=T),
-    propietario=sample(codiciFiscali, num, replace = T),
-    modello=sample(idModelli, num, replace = T),
-    versione=sample(numeroVersioni, num, replace = T)
+    targa=sample(targa, numVeicoloImmatricolato, replace = F),
+    data_immatricolazione=sample(data, numVeicoloImmatricolato, replace = T),
+    propietario=sample(codiciFiscali, numVeicoloImmatricolato, replace = T),
+    modello=sample(idModelli, numVeicoloImmatricolato, replace = T),
+    versione=sample(numeroVersioni, numVeicoloImmatricolato, replace = T)
 )
 
+numModello = length(idModelli)
 modello = data.frame(
-    id_modello=sample(idModelli, num, replace = F),
-    cilindrata=sample(cilindrate, num, replace = T),
-    cavalli_fiscali=sample(cavalliFiscali, num, replace = T),
-    velocita_massima=sample(velocitaMassime, num, replace = T),
-    numero_posti=sample(numeroPosti, num, replace = T),
-    alimentazione=sample(sample(0:5), num, replace = T),
-    classe_veicolo=sample(sample(0:5), num, replace = T),
-    motorizzazione=sample(motorizzazioni, num, replace = T),
-    casa_produttrice=sample(caseProduttrici, num, replace = T)
+    id_modello=sample(idModelli, numModello, replace = F),
+    cilindrata=sample(cilindrate, numModello, replace = T),
+    cavalli_fiscali=sample(cavalliFiscali, numModello, replace = T),
+    velocita_massima=sample(velocitaMassime, numModello, replace = T),
+    numero_posti=sample(numeroPosti, numModello, replace = T),
+    alimentazione=sample(sample(0:5), numModello, replace = T),
+    classe_veicolo=sample(sample(0:5), numModello, replace = T),
+    casa_produttrice=sample(caseProduttrici, numModello, replace = T)
 )
-
+numCasaProduttrice = length(caseProduttrici)
 casaProduttrice = data.frame(
-    nome = sample(caseProduttrici, num, replace = F),
-    direttore=sample(nomi, num, replace = T),
-    contatto_telefonico=sample(contattiTelefonici, num, replace = T),
-    indirizzo_sede=sample(indirizzi, num, replace= T)
+    nome = sample(caseProduttrici, numCasaProduttrice, replace = F),
+    direttore=sample(nomi, numCasaProduttrice, replace = T),
+    contatto_telefonico=sample(contattiTelefonici, numCasaProduttrice, replace = T),
+    indirizzo_sede=sample(indirizzi, numCasaProduttrice, replace= T)
 )
-
+numProprietario = length(codiciFiscali)
 proprietario = data.frame(
-    cf=sample(codiciFiscali, num, replace = F),
-    nome=sample(nomi, num, replace = T),
-    cognome=sample(cognomi, num, replace=T),
-    residenza=sample(indirizzi, num, replace = T)
+    cf=sample(codiciFiscali, numProprietario, replace = F),
+    nome=sample(nomi, numProprietario, replace = T),
+    cognome=sample(cognomi, numProprietario, replace=T),
+    residenza=sample(indirizzi, numProprietario, replace = T)
 )
 
 
@@ -79,11 +76,32 @@ proprietario = data.frame(
 con = dbConnect(drv , dbname = "postgres", host =  "127.0.0.1", port = "5432", user = "postgres", password = "admin")
 print(con)
 
-dbWriteTable( con, name=c("public", "Proprietario"), value=proprietario)
-dbWriteTable( con, name=c("public", "CasaProduttrice"), value=casaProduttrice)
-dbWriteTable( con, name=c("public", "Modello"), value=modello)
-dbWriteTable( con, name=c("public", "Versione"), value=versione)
-dbWriteTable( con, name=c("public", "VeicoloImmatricolato"), value=veicoloImmatricolato)
-dbWriteTable( con, name=c("public", "Cessione"), value=cessione)
+tryCatch({
+    dbWriteTable( con, name=c("motorizzazionecivile", "propietario"), value=proprietario, append=T, row.names=F)
+}, error=function(e){})
+
+tryCatch({
+    dbWriteTable( con, name=c("motorizzazionecivile", "casaproduttrice"), value=casaProduttrice, append=T, row.names=F)
+}, error=function(e){})
+
+tryCatch({
+    dbWriteTable( con, name=c("motorizzazionecivile", "modello"), value=modello, append=T, row.names=F)
+}, error=function(e){})
+
+tryCatch({
+    dbWriteTable( con, name=c("motorizzazionecivile", "allestimento"), value=allestimento, append=T, row.names=F)
+}, error=function(e){})
+
+tryCatch({
+    dbWriteTable( con, name=c("motorizzazionecivile", "veicoloimmatricolato"), value=veicoloImmatricolato, append=T, row.names=F)
+}, error=function(e){})
+
+tryCatch({
+    dbWriteTable( con, name=c("motorizzazionecivile", "cessione"), value=cessione, append=T, row.names=F)
+}, error=function(e){})
+
+
+
+
 
 dbDisconnect(con)
