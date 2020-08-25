@@ -21,7 +21,7 @@ auto = dbGetQuery(con,
                     from veicoloimmatricolato
                     group by modello;" )
 
-k=3
+k=6
 barplot(height = auto$n[1:k],
         names.arg = auto$modello[1:k],
         main ="Modelli più immatricolati",
@@ -29,5 +29,19 @@ barplot(height = auto$n[1:k],
         xlab ="Modello",
         cex.names =0.9)
 
+allestimentiAuto = dbGetQuery(con,
+                   "set search_path to MotorizzazioneCivile, public;
+                   
+                    select allestimento, count(*) as x
+                    from veicoloimmatricolato
+                    group by allestimento;" )
+
+k=5
+barplot(height = allestimentiAuto$x[1:k],
+        names.arg = allestimentiAuto$allestimento[1:k],
+        main ="Allestimenti più Scelti",
+        ylab ="Percentuale scelta dell'allestimento ",
+        xlab ="Allestimento",
+        cex.names =0.9)                   
         
 dbDisconnect(con)

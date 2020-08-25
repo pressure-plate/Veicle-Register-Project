@@ -35,14 +35,6 @@ modelliAllestitiQuery = dbGetQuery(con,
                                 from Allestimento;")
 
 
-modelliAllestiti = c()  
-for(i in 1:nrow(modelliAllestitiQuery)) {
-    row = modelliAllestitiQuery[i,]
-     #do stuff with row
-    out = mapply(c, row[,1], row[,2], SIMPLIFY = FALSE)
-    modelliAllestiti = append(modelliAllestiti, out)
-}                   
-
 write.csv(modelliAllestitiQuery, "./R/data/csv/modelliAllestiti.csv", row.names=FALSE)
 
 
@@ -70,8 +62,8 @@ veicoloImmatricolato = data.frame(
     targa=targa,
     data_immatricolazione=sample(data, numVeicoloImmatricolato, replace = T),
     propietario=sample(codiciFiscali, numVeicoloImmatricolato, replace = T),
-    modello=modelliAllestitiQuery[,1],
-    allestimento=modelliAllestitiQuery[,2]
+    modello=modelliAllestitiQuery[,2],
+    allestimento=modelliAllestitiQuery[,1]
 
 )
 write.csv(veicoloImmatricolato, "./R/data/csv/veicoloImmatricolato.csv", row.names=FALSE)
