@@ -17,5 +17,14 @@ print(con)
 auto = dbGetQuery(con,
                    "set search_path to MotorizzazioneCivile, public;
                    
-                   create or replace view Temp(casaProduttrice) as 
-                   select " )
+                    select modello, count(*) as n
+                    from veicoloimmatricolato
+                    group by modello;" )
+
+k=3
+barplot(height = auto$n[1:k],
+        names.arg = auto$modello[1:k],
+        main ="Modelli più immatricolati",
+        ylab ="Numero immatricolazioni",
+        xlab ="Modello",
+        cex.names =0.9)

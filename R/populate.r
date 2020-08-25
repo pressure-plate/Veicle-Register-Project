@@ -44,22 +44,26 @@ veicoloImmatricolato = data.frame(
 
 numModello = length(idModelli)
 modello = data.frame(
-    modello=sample(idModelli, numModello, replace = F),
+    modello=idModelli,
     cilindrata=sample(cilindrate, numModello, replace = T),
     cavalli_fiscali=sample(cavalliFiscali, numModello, replace = T),
     velocita_massima=sample(velocitaMassime, numModello, replace = T),
     numero_posti=sample(numeroPosti, numModello, replace = T),
     alimentazione=sample(c('diesel', 'benzina', 'metano', 'gpl', 'elettrico', 'altro'), numModello, replace = T),
     classe_veicolo=sample(c('auto', 'moto', 'motociclo', 'camion', 'trattore', 'altro'), numModello, replace = T),
-    casa_produttrice=sample(caseProduttrici, numModello, replace = T)
+    casa_produttrice=caseProduttrici
 )
+write.csv(modello, "./R/data/modello.csv")
+
 numCasaProduttrice = length(caseProduttrici)
 casaProduttrice = data.frame(
-    nome = sample(caseProduttrici, numCasaProduttrice, replace = F),
+    #nome = sample(caseProduttrici, numCasaProduttrice, replace = F),
     direttore=sample(nomi, numCasaProduttrice, replace = T),
     contatto_telefonico=sample(contattiTelefonici, numCasaProduttrice, replace = T),
     indirizzo_sede=sample(indirizzi, numCasaProduttrice, replace= T)
 )
+#write.csv(casaProduttrice, "./R/data/casaProduttrice.csv", row.names=FALSE)
+
 numProprietario = length(codiciFiscali)
 proprietario = data.frame(
     cf=sample(codiciFiscali, numProprietario, replace = F),
@@ -67,7 +71,7 @@ proprietario = data.frame(
     cognome=sample(cognomi, numProprietario, replace=T),
     residenza=sample(indirizzi, numProprietario, replace = T)
 )
-
+write.csv(proprietario, "./R/data/proprietario.csv", row.names=FALSE)
 
 # Questo script popola la relazione ‘CasaProduttrice’ con tuple generate casualmente
 
@@ -87,18 +91,46 @@ print(con)
 
 # Elimino eventuali tuple gia presenti così da evitare errori dovuti alla duplicazione
 # della chiave primaria
-#dbSendQuery(con,
-#            "delete * from motorizzazionecivile.proprietario")
+dbSendQuery(con,
+            "set search_path to MotorizzazioneCivile, public;
+
+            delete from Propietario;")
+
+dbSendQuery(con,
+            "set search_path to MotorizzazioneCivile, public;
+
+            delete from CasaProduttrice;")
+
+dbSendQuery(con,
+            "set search_path to MotorizzazioneCivile, public;
+
+            delete from Modello;")
+
+dbSendQuery(con,
+            "set search_path to MotorizzazioneCivile, public;
+
+            delete from Allestimento;")
+
+dbSendQuery(con,
+            "set search_path to MotorizzazioneCivile, public;
+
+            delete from VeicoloImmatricolato;")
+
+dbSendQuery(con,
+            "set search_path to MotorizzazioneCivile, public;
+
+            delete from Cessione;")
+
 
 # Inserisco le tuple nella relazione Proprietario            
 
     #dbWriteTable(con, name=c("motorizzazionecivile", "propietario"), value=proprietario, append=T, row.names=F)
 
 
-    #dbWriteTable( con, name=c("motorizzazionecivile", "casaproduttrice"), value=casaProduttrice, append=T, row.names=F)
+    dbWriteTable( con, name=c("motorizzazionecivile", "casaproduttrice"), value=casaProduttrice, append=T, row.names=F)
 
 
-    #dbWriteTable( con, name=c("motorizzazionecivile", "modello"), value=modello, append=T, row.names=F)
+    dbWriteTable( con, name=c("motorizzazionecivile", "modello"), value=modello, append=T, row.names=F)
 
 
 
@@ -106,11 +138,11 @@ print(con)
 
 
 
-    dbWriteTable( con, name=c("motorizzazionecivile", "veicoloimmatricolato"), value=veicoloImmatricolato, append=T, row.names=F)
+    #dbWriteTable( con, name=c("motorizzazionecivile", "veicoloimmatricolato"), value=veicoloImmatricolato, append=T, row.names=F)
 
 
 
-    dbWriteTable( con, name=c("motorizzazionecivile", "cessione"), value=cessione, append=T, row.names=F)
+    #dbWriteTable( con, name=c("motorizzazionecivile", "cessione"), value=cessione, append=T, row.names=F)
 
 
 
