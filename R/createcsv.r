@@ -26,12 +26,25 @@ velocitaMassime = readLines("./R/data/velocitaMassima.txt")
 allestimenti = readLines("./R/data/allestimento.txt")
 case = c("Fiat","Ford","Volkswagen","Suzuki","Audi","BMW","Ferrari","Dacia","Skoda","Seat","Toyota","Mazda","Tesla")
 
-modelliAllestiti = dbGetQuery(con,
+
+
+modelliAllestitiQuery = dbGetQuery(con,
                               "set search_path to MotorizzazioneCivile, public;
                    
                                 select nome, modello
                                 from Allestimento;")
-write.csv(modelliAllestiti, "./R/data/csv/modelliAllestiti.csv", row.names=FALSE)
+
+
+modelliAllestiti = c()  
+for(i in 1:nrow(modelliAllestitiQuery)) {
+    row = modelliAllestitiQuery[i,]
+     #do stuff with row
+    out = mapply(c, row[,1], row[,2], SIMPLIFY = FALSE)
+    modelliAllestiti = append(modelliAllestiti, out)
+}                   
+
+write.csv(modelliAllestitiQuery, "./R/data/csv/modelliAllestiti.csv", row.names=FALSE)
+
 
 # Genero un campione di tuple da inserire nella tabella della relazione Allestimento
 
@@ -57,8 +70,9 @@ veicoloImmatricolato = data.frame(
     targa=targa,
     data_immatricolazione=sample(data, numVeicoloImmatricolato, replace = T),
     propietario=sample(codiciFiscali, numVeicoloImmatricolato, replace = T),
-    modello=sample(modelliAllestiti[,2], numVeicoloImmatricolato, replace = T),
-    allestimento=sample(modelliAllestiti[,1], numVeicoloImmatricolato, replace=T)
+    modello=modelliAllestitiQuery[,1],
+    allestimento=modelliAllestitiQuery[,2]
+
 )
 write.csv(veicoloImmatricolato, "./R/data/csv/veicoloImmatricolato.csv", row.names=FALSE)
 
