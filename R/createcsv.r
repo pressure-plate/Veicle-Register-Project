@@ -54,12 +54,13 @@ cessione = data.frame(
 
 numVeicoloImmatricolato = length(targa)
 veicoloImmatricolato = data.frame(
-    targa=sample(targa, numVeicoloImmatricolato, replace = F),
+    targa=targa,
     data_immatricolazione=sample(data, numVeicoloImmatricolato, replace = T),
     propietario=sample(codiciFiscali, numVeicoloImmatricolato, replace = T),
-    modello=sample(idModelli, numVeicoloImmatricolato, replace = T),
-    allestimento=sample(allestimenti, numVeicoloImmatricolato, replace = T)
+    modello=sample(modelliAllestiti[,2], numVeicoloImmatricolato, replace = T),
+    allestimento=sample(modelliAllestiti[,1], numVeicoloImmatricolato, replace=T)
 )
+write.csv(veicoloImmatricolato, "./R/data/csv/veicoloImmatricolato.csv", row.names=FALSE)
 
 numModello = length(idModelli)
 modello = data.frame(
