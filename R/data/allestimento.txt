@@ -1,9 +1,10 @@
 Sport
 Luxury
-Music
-Vignale
-Saefty Pack
 Business
 Premium
-Long Range
+Performance
+Sport
+Luxury
+Business
+Premium
 Performance

@@ -28,3 +28,6 @@ barplot(height = auto$n[1:k],
         ylab ="Numero immatricolazioni",
         xlab ="Modello",
         cex.names =0.9)
+
+        
+dbDisconnect(con)
