@@ -33,37 +33,37 @@ case = c("Fiat","Ford","Volkswagen","Suzuki","Audi","BMW","Ferrari","Dacia","Sko
 
 #modelliAllestitiQuery = dbGetQuery(con,
  #                             "set search_path to MotorizzazioneCivile, public;
-   #                
-     #                           select nome, modello
-      #                          from Allestimento;")
+                   
+  #                              select nome, modello
+ #                               from Allestimento;")
 
 
 #write.csv(modelliAllestitiQuery, "./R/data/csv/modelliAllestiti.csv", row.names=FALSE)
-modelliAllestitiQuery = read.csv("./R/data/csv/modelliAllestiti.csv")
-samp = modelliAllestitiQuery[rep(seq_len(nrow(modelliAllestitiQuery)), each = 147), ]
+#modelliAllestitiQuery = read.csv("./R/data/csv/modelliAllestiti.csv")
+#samp = modelliAllestitiQuery[rep(seq_len(nrow(modelliAllestitiQuery)), each = 146), ]
 
 # Genero un campione di tuple per ogni relazione della base di dati
 
 numAllestimento = length(idModelli)
 allestimento1 = data.frame(
     nome=sample(allestimenti, numAllestimento, replace = T),
-    data_inizio_produzione=sample(data, numAllestimento, replace = T),
-    data_fine_produzione=sample(data, numAllestimento, replace=T),
+    data_inizio_produzione=sample(c('2000-05-22 22:10:25'), numAllestimento, replace = T),
+    data_fine_produzione=sample(c('2020-05-22 22:10:25'), numAllestimento, replace=T),
     modello=sample(idModelli, numAllestimento, replace = F)
 )
-#write.csv(allestimento, "./R/data/csv/allestimento.csv", row.names=FALSE)
+
 
 numVeicoloImmatricolato = length(targa)
 veicoloImmatricolato1 = data.frame(
     targa=targa,
-    data_immatricolazione=sample(data, numVeicoloImmatricolato, replace = T),
+    data_immatricolazione=sample(c('2010-05-22 22:10:25'), numVeicoloImmatricolato, replace = T),
     propietario=sample(codiciFiscali, numVeicoloImmatricolato, replace = T),
     modello=samp[,2],
     allestimento=samp[,1]
 
 )
 
-#write.csv(veicoloImmatricolato1, "./R/data/csv/veicoloImmatricolato.csv", row.names=FALSE)
+
 
 numModello = length(idModelli)
 modello1 = data.frame(
@@ -76,7 +76,7 @@ modello1 = data.frame(
     classe_veicolo=sample(c('auto', 'moto', 'motociclo', 'camion', 'trattore', 'altro'), numModello, replace = T),
     casa_produttrice=caseProduttrici
 )
-#write.csv(modello1, "./R/data/csv/modello.csv", row.names=FALSE)
+
 
 numCasaProduttrice = length(case)
 casaProduttrice1 = data.frame(
@@ -85,7 +85,6 @@ casaProduttrice1 = data.frame(
     contatto_telefonico=sample(contattiTelefonici, numCasaProduttrice, replace = T),
     indirizzo_sede=sample(indirizzi, numCasaProduttrice, replace= T)
 )
-#write.csv(casaProduttrice1, "./R/data/csv/casaProduttrice.csv", row.names=FALSE)
 
 numProprietario = length(codiciFiscali)
 proprietario1 = data.frame(
@@ -94,7 +93,7 @@ proprietario1 = data.frame(
     cognome=sample(cognomi, numProprietario, replace=T),
     residenza=sample(indirizzi, numProprietario, replace = T)
 )
-#write.csv(proprietario1, "./R/data/csv/proprietario.csv", row.names=FALSE)
+
 
 
 dbDisconnect(con)
