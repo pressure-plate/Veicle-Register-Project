@@ -16,60 +16,60 @@ print(con)
 
 # Elimino eventuali tuple gia presenti così da evitare errori dovuti alla duplicazione
 # della chiave primaria
-#dbSendQuery(con,
- #           "set search_path to MotorizzazioneCivile, public;
+dbSendQuery(con,
+            "set search_path to MotorizzazioneCivile, public;
 
- #           delete from Propietario;")
+            delete from Propietario;")
 
-#dbSendQuery(con,
-#            "set search_path to MotorizzazioneCivile, public;
+dbSendQuery(con,
+            "set search_path to MotorizzazioneCivile, public;
 
-#            delete from CasaProduttrice;")
+            delete from CasaProduttrice;")
 
-#dbSendQuery(con,
- #           "set search_path to MotorizzazioneCivile, public;
+dbSendQuery(con,
+            "set search_path to MotorizzazioneCivile, public;
 
-#            delete from Modello;")
+            delete from Modello;")
 
-#dbSendQuery(con,
-#            "set search_path to MotorizzazioneCivile, public;
+dbSendQuery(con,
+            "set search_path to MotorizzazioneCivile, public;
 
-#            delete from Allestimento;")
+            delete from Allestimento;")
 
-#dbSendQuery(con,
-#            "set search_path to MotorizzazioneCivile, public;
+dbSendQuery(con,
+            "set search_path to MotorizzazioneCivile, public;
 
-#           delete from VeicoloImmatricolato;")
+           delete from VeicoloImmatricolato;")
 
-#dbSendQuery(con,
-#            "set search_path to MotorizzazioneCivile, public;
-#
- #           delete from Cessione;")
+dbSendQuery(con,
+           "set search_path to MotorizzazioneCivile, public;
 
+            delete from Cessione;")
+
+veicoloImmatricolato = read.csv("./R/data/csv/veicoloImmatricolato.csv")
+proprietario = read.csv("./R/data/csv/proprietario.csv")
+casaProduttrice = read.csv("./R/data/csv/casaProduttrice.csv")
+modello = read.csv("./R/data/csv/modello.csv")
+allestimento = read.csv("./R/data/csv/allestimento.csv")
 
 # Inserisco le tuple nella relazione Proprietario            
 
-  #  dbWriteTable(con, name=c("motorizzazionecivile", "propietario"), value=proprietario, append=T, row.names=F)
+    dbWriteTable(con, name=c("motorizzazionecivile", "propietario"), value=proprietario, append=T, row.names=F)
 
 
-  #  dbWriteTable( con, name=c("motorizzazionecivile", "casaproduttrice"), value=casaProduttrice, append=T, row.names=F)
+    dbWriteTable( con, name=c("motorizzazionecivile", "casaproduttrice"), value=casaProduttrice, append=T, row.names=F)
 
 
- #   dbWriteTable( con, name=c("motorizzazionecivile", "modello"), value=modello, append=T, row.names=F)
+    dbWriteTable( con, name=c("motorizzazionecivile", "modello"), value=modello, append=T, row.names=F)
 
 
-
-  #  dbWriteTable( con, name=c("motorizzazionecivile", "allestimento"), value=allestimento, append=T, row.names=F)
-
+    dbWriteTable( con, name=c("motorizzazionecivile", "allestimento"), value=allestimento, append=T, row.names=F)
 
 
     dbWriteTable( con, name=c("motorizzazionecivile", "veicoloimmatricolato"), value=veicoloImmatricolato, append=T, row.names=F)
 
 
-
-    #dbWriteTable( con, name=c("motorizzazionecivile", "cessione"), value=cessione, append=T, row.names=F)
-
-
+    dbWriteTable( con, name=c("motorizzazionecivile", "cessione"), value=cessione, append=T, row.names=F)
 
 
 # Chiudo la connessione con il server
