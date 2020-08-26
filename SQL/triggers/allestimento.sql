@@ -13,7 +13,7 @@ $$
 
         -- se la data di fine produzione è precedente a quella d'inizio produzione abort
         if (new.data_fine_produzione < new.data_inizio_produzione ) then
-            raise exception 'Errore, data fine produzione non può essere precedente';
+            raise exception 'Errore, data fine produzione non può essere precedente ad inizio produzione';
             return null;
         end if;
 
