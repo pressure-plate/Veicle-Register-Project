@@ -1,3 +1,6 @@
+install.packages("RPostgreSQL")
+library("RPostgreSQL")
+drv = dbDriver("PostgreSQL")
 con = dbConnect(drv ,
                 dbname = "postgres", 
                 host =  "127.0.0.1", 
@@ -28,17 +31,18 @@ case = c("Fiat","Ford","Volkswagen","Suzuki","Audi","BMW","Ferrari","Dacia","Sko
 
 
 
-modelliAllestitiQuery = dbGetQuery(con,
-                              "set search_path to MotorizzazioneCivile, public;
-                   
-                                select nome, modello
-                                from Allestimento;")
+#modelliAllestitiQuery = dbGetQuery(con,
+ #                             "set search_path to MotorizzazioneCivile, public;
+   #                
+     #                           select nome, modello
+      #                          from Allestimento;")
 
 
-write.csv(modelliAllestitiQuery, "./R/data/csv/modelliAllestiti.csv", row.names=FALSE)
+#write.csv(modelliAllestitiQuery, "./R/data/csv/modelliAllestiti.csv", row.names=FALSE)
+modelliAllestitiQuery = read.csv("./R/data/csv/modelliAllestiti.csv")
+samp = modelliAllestitiQuery[rep(seq_len(nrow(modelliAllestitiQuery)), each = 147), ]
 
-
-# Genero un campione di tuple da inserire nella tabella della relazione Allestimento
+# Genero un campione di tuple per ogni relazione della base di dati
 
 numAllestimento = length(idModelli)
 allestimento = data.frame(
@@ -47,29 +51,22 @@ allestimento = data.frame(
     data_fine_produzione=sample(data, numAllestimento, replace=T),
     modello=sample(idModelli, numAllestimento, replace = F)
 )
-write.csv(allestimento, "./R/data/csv/allestimento.csv", row.names=FALSE)
-
-num = 30
-cessione = data.frame(
-    data_passaggio=sample(data, num, replace = T),
-    vecchio_propietario=sample(codiciFiscali, num, replace = T),
-    nuovo_propietario=sample(codiciFiscali, num, replace = T),
-    veicolo_immatricolato=sample(targa, num, replace=T)
-)
+#write.csv(allestimento, "./R/data/csv/allestimento.csv", row.names=FALSE)
 
 numVeicoloImmatricolato = length(targa)
-veicoloImmatricolato = data.frame(
+veicoloImmatricolato1 = data.frame(
     targa=targa,
     data_immatricolazione=sample(data, numVeicoloImmatricolato, replace = T),
     propietario=sample(codiciFiscali, numVeicoloImmatricolato, replace = T),
-    modello=modelliAllestitiQuery[,2],
-    allestimento=modelliAllestitiQuery[,1]
+    modello=samp[,2],
+    allestimento=samp[,1]
 
 )
-write.csv(veicoloImmatricolato, "./R/data/csv/veicoloImmatricolato.csv", row.names=FALSE)
+
+#write.csv(veicoloImmatricolato1, "./R/data/csv/veicoloImmatricolato.csv", row.names=FALSE)
 
 numModello = length(idModelli)
-modello = data.frame(
+modello1 = data.frame(
     modello=idModelli,
     cilindrata=sample(cilindrate, numModello, replace = T),
     cavalli_fiscali=sample(cavalliFiscali, numModello, replace = T),
@@ -79,25 +76,25 @@ modello = data.frame(
     classe_veicolo=sample(c('auto', 'moto', 'motociclo', 'camion', 'trattore', 'altro'), numModello, replace = T),
     casa_produttrice=caseProduttrici
 )
-write.csv(modello, "./R/data/csv/modello.csv", row.names=FALSE)
+#write.csv(modello1, "./R/data/csv/modello.csv", row.names=FALSE)
 
 numCasaProduttrice = length(case)
-casaProduttrice = data.frame(
+casaProduttrice1 = data.frame(
     nome = case,
     direttore=sample(nomi, numCasaProduttrice, replace = T),
     contatto_telefonico=sample(contattiTelefonici, numCasaProduttrice, replace = T),
     indirizzo_sede=sample(indirizzi, numCasaProduttrice, replace= T)
 )
-write.csv(casaProduttrice, "./R/data/csv/casaProduttrice.csv", row.names=FALSE)
+#write.csv(casaProduttrice1, "./R/data/csv/casaProduttrice.csv", row.names=FALSE)
 
 numProprietario = length(codiciFiscali)
-proprietario = data.frame(
+proprietario1 = data.frame(
     cf=sample(codiciFiscali, numProprietario, replace = F),
     nome=sample(nomi, numProprietario, replace = T),
     cognome=sample(cognomi, numProprietario, replace=T),
     residenza=sample(indirizzi, numProprietario, replace = T)
 )
-write.csv(proprietario, "./R/data/csv/proprietario.csv", row.names=FALSE)
+#write.csv(proprietario1, "./R/data/csv/proprietario.csv", row.names=FALSE)
 
 
 dbDisconnect(con)
