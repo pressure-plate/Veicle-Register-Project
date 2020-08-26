@@ -45,7 +45,7 @@ samp = modelliAllestitiQuery[rep(seq_len(nrow(modelliAllestitiQuery)), each = 14
 # Genero un campione di tuple per ogni relazione della base di dati
 
 numAllestimento = length(idModelli)
-allestimento = data.frame(
+allestimento1 = data.frame(
     nome=sample(allestimenti, numAllestimento, replace = T),
     data_inizio_produzione=sample(data, numAllestimento, replace = T),
     data_fine_produzione=sample(data, numAllestimento, replace=T),
