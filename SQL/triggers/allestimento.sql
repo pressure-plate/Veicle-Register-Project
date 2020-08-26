@@ -4,7 +4,7 @@ start transaction;
 set search_path to MotorizzazioneCivile, public;
 
 create or replace function controlla_data_produzione()
-return trigger
+returns trigger
 language plpgsql as
 $$
 
