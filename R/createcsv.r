@@ -1,3 +1,4 @@
+install.packages("RPostgreSQL")
 library("RPostgreSQL")
 drv = dbDriver("PostgreSQL")
 con = dbConnect(drv ,
@@ -28,7 +29,20 @@ velocitaMassime = readLines("./R/data/velocitaMassima.txt")
 allestimenti = readLines("./R/data/allestimento.txt")
 case = c("Fiat","Ford","Volkswagen","Suzuki","Audi","BMW","Ferrari","Dacia","Skoda","Seat","Toyota","Mazda","Tesla")
 
-# Genero un campione di tuple da inserire nella tabella della relazione Allestimento
+
+
+#modelliAllestitiQuery = dbGetQuery(con,
+ #                             "set search_path to MotorizzazioneCivile, public;
+   #                
+     #                           select nome, modello
+      #                          from Allestimento;")
+
+
+#write.csv(modelliAllestitiQuery, "./R/data/csv/modelliAllestiti.csv", row.names=FALSE)
+modelliAllestitiQuery = read.csv("./R/data/csv/modelliAllestiti.csv")
+samp = modelliAllestitiQuery[rep(seq_len(nrow(modelliAllestitiQuery)), each = 147), ]
+
+# Genero un campione di tuple per ogni relazione della base di dati
 
 numAllestimento = length(idModelli)
 allestimento1 = data.frame(
@@ -39,8 +53,20 @@ allestimento1 = data.frame(
 )
 #write.csv(allestimento, "./R/data/csv/allestimento.csv", row.names=FALSE)
 
-numModello1 = length(idModelli)
-modello = data.frame(
+numVeicoloImmatricolato = length(targa)
+veicoloImmatricolato1 = data.frame(
+    targa=targa,
+    data_immatricolazione=sample(data, numVeicoloImmatricolato, replace = T),
+    propietario=sample(codiciFiscali, numVeicoloImmatricolato, replace = T),
+    modello=samp[,2],
+    allestimento=samp[,1]
+
+)
+
+#write.csv(veicoloImmatricolato1, "./R/data/csv/veicoloImmatricolato.csv", row.names=FALSE)
+
+numModello = length(idModelli)
+modello1 = data.frame(
     modello=idModelli,
     cilindrata=sample(cilindrate, numModello, replace = T),
     cavalli_fiscali=sample(cavalliFiscali, numModello, replace = T),
@@ -50,7 +76,7 @@ modello = data.frame(
     classe_veicolo=sample(c('auto', 'moto', 'motociclo', 'camion', 'trattore', 'altro'), numModello, replace = T),
     casa_produttrice=caseProduttrici
 )
-#write.csv(modello, "./R/data/csv/modello.csv", row.names=FALSE)
+#write.csv(modello1, "./R/data/csv/modello.csv", row.names=FALSE)
 
 numCasaProduttrice = length(case)
 casaProduttrice1 = data.frame(
@@ -59,7 +85,7 @@ casaProduttrice1 = data.frame(
     contatto_telefonico=sample(contattiTelefonici, numCasaProduttrice, replace = T),
     indirizzo_sede=sample(indirizzi, numCasaProduttrice, replace= T)
 )
-#write.csv(casaProduttrice, "./R/data/csv/casaProduttrice.csv", row.names=FALSE)
+#write.csv(casaProduttrice1, "./R/data/csv/casaProduttrice.csv", row.names=FALSE)
 
 numProprietario = length(codiciFiscali)
 proprietario1 = data.frame(
@@ -68,7 +94,7 @@ proprietario1 = data.frame(
     cognome=sample(cognomi, numProprietario, replace=T),
     residenza=sample(indirizzi, numProprietario, replace = T)
 )
-#write.csv(proprietario, "./R/data/csv/proprietario.csv", row.names=FALSE)
+#write.csv(proprietario1, "./R/data/csv/proprietario.csv", row.names=FALSE)
 
 
 dbDisconnect(con)
