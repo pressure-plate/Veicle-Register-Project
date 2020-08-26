@@ -136,14 +136,14 @@ CREATE TABLE VeicoloImmatricolato
   -- impedisci cancellazioe del propietario
   CONSTRAINT fk_propietario
     FOREIGN KEY(propietario) 
-      REFERENCES Propietario(cf)
+      REFERENCES Propietario(cf),
 
   -- permetti la cancellazione di allestimento e modelo
   -- solo dopo che tutti i veicolo sono rottamati
 
   CONSTRAINT fk_modello
     FOREIGN KEY(modello)
-      REFERENCES Modello(modello)
+      REFERENCES Modello(modello),
 
   CONSTRAINT fk_allestimento
     FOREIGN KEY(allestimento, modello) 

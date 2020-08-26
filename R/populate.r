@@ -16,25 +16,11 @@ print(con)
 
 # Elimino eventuali tuple gia presenti così da evitare errori dovuti alla duplicazione
 # della chiave primaria
-dbSendQuery(con,
-            "set search_path to MotorizzazioneCivile, public;
-
-            delete from Propietario;")
 
 dbSendQuery(con,
             "set search_path to MotorizzazioneCivile, public;
 
-            delete from CasaProduttrice;")
-
-dbSendQuery(con,
-            "set search_path to MotorizzazioneCivile, public;
-
-            delete from Modello;")
-
-dbSendQuery(con,
-            "set search_path to MotorizzazioneCivile, public;
-
-            delete from Allestimento;")
+            delete from Cessione;")
 
 dbSendQuery(con,
             "set search_path to MotorizzazioneCivile, public;
@@ -44,7 +30,22 @@ dbSendQuery(con,
 dbSendQuery(con,
             "set search_path to MotorizzazioneCivile, public;
 
-            delete from Cessione;")
+            delete from Allestimento;")
+
+dbSendQuery(con,
+            "set search_path to MotorizzazioneCivile, public;
+
+            delete from Modello;")
+
+dbSendQuery(con,
+            "set search_path to MotorizzazioneCivile, public;
+
+            delete from CasaProduttrice;")
+
+dbSendQuery(con,
+            "set search_path to MotorizzazioneCivile, public;
+
+            delete from Propietario;")
 
 proprietario = read.csv("./R/data/csv/proprietario.csv")
 casaProduttrice = read.csv("./R/data/csv/casaProduttrice.csv")
