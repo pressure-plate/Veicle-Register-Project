@@ -6,31 +6,6 @@ set search_path to MotorizzazioneCivile, public;
 
 
 -- ---------------------------------------------
--- Rimozione dei Tipi DEBUG
--- ---------------------------------------------
-DROP TABLE IF EXISTS Cessione;
-DROP TABLE IF EXISTS VeicoloImmatricolato;
-DROP TABLE IF EXISTS Allestimento;
-DROP TABLE IF EXISTS Modello;
-DROP TABLE IF EXISTS CasaProduttrice;
-DROP TABLE IF EXISTS Propietario;
-
-DROP SEQUENCE IF EXISTS id_pratica_serial;
-
-
-DROP TYPE IF EXISTS alimentazioni;
-DROP TYPE IF EXISTS veicoli;
-
-DROP TYPE IF EXISTS enum_alimentazioni;
-DROP TYPE IF EXISTS enum_veicoli;
-
-DROP DOMAIN IF EXISTS id_propietario;
-DROP DOMAIN IF EXISTS id_veicolo_immatricolato;
-DROP DOMAIN IF EXISTS string;
-DROP DOMAIN IF EXISTS numero_pezzi;
-
-
--- ---------------------------------------------
 -- DEFINIZIONE DOMINI E TIPO
 -- ---------------------------------------------
 
