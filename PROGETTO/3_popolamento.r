@@ -14,7 +14,7 @@ con = dbConnect(drv ,
 
 print(con)
 
-# Creo i data frame con cui popolerò il database recuperando i dati dai file csv
+# Creo i data frame con cui popolerò il database recuperando i dati dai file csv generati precedentemente con R
 
 proprietario = read.csv("./PROGETTO/csv/proprietario.csv")
 casaProduttrice = read.csv("./PROGETTO/csv/casaProduttrice.csv")
