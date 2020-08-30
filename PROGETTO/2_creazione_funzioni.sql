@@ -131,7 +131,7 @@ $$
         end if;
 
         SELECT * INTO cessioni_successive FROM Cessione
-            WHERE data_passaggio >= new.data_passaggio;
+            WHERE ((data_passaggio >= new.data_passaggio) and (veicolo_immatricolato = new.veicolo_immatricolato));
 
         -- se la data di passaggio e' inferiore ad un passaggio gia' esistente abort
         if (cessioni_successive is not null) then

@@ -23,22 +23,21 @@ allestimento = read.csv("./PROGETTO/csv/allestimento.csv")
 veicoloImmatricolato = read.csv("./PROGETTO/csv/veicoloImmatricolato.csv")
 cessione = read.csv("./PROGETTO/csv/cessione.csv")
 
+
 # Inserisco le tuple nelle varie relazioni           
 
-    dbWriteTable(con, name=c("motorizzazionecivile", "propietario"), value=proprietario, append=T, row.names=F)
+dbWriteTable(con, name=c("motorizzazionecivile", "propietario"), value=proprietario, append=T, row.names=F)
 
-    dbWriteTable( con, name=c("motorizzazionecivile", "casaproduttrice"), value=casaProduttrice, append=T, row.names=F)
+dbWriteTable( con, name=c("motorizzazionecivile", "casaproduttrice"), value=casaProduttrice, append=T, row.names=F)
 
-    dbWriteTable( con, name=c("motorizzazionecivile", "modello"), value=modello, append=T, row.names=F)
+dbWriteTable( con, name=c("motorizzazionecivile", "modello"), value=modello, append=T, row.names=F)
 
-    dbWriteTable( con, name=c("motorizzazionecivile", "allestimento"), value=allestimento, append=T, row.names=F)
+dbWriteTable( con, name=c("motorizzazionecivile", "allestimento"), value=allestimento, append=T, row.names=F)
 
-    dbWriteTable( con, name=c("motorizzazionecivile", "veicoloimmatricolato"), value=veicoloImmatricolato, append=T, row.names=F)
+dbWriteTable( con, name=c("motorizzazionecivile", "veicoloimmatricolato"), value=veicoloImmatricolato, append=T, row.names=F)
 
-    dbWriteTable( con, name=c("motorizzazionecivile", "cessione"), value=cessione, append=T, row.names=F)
-
+dbWriteTable( con, name=c("motorizzazionecivile", "cessione"), value=cessione, append=T, row.names=F)
 
 
 # Chiudo la connessione con il server
-
 dbDisconnect(con)
