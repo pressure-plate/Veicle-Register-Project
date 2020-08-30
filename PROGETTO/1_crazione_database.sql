@@ -1,6 +1,5 @@
 start transaction;
 
-DROP schema if EXISTS MotorizzazioneCivile CASCADE;
 create schema MotorizzazioneCivile;
 set search_path to MotorizzazioneCivile, public;
 

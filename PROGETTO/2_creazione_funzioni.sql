@@ -209,6 +209,11 @@ for each row
 execute procedure impedisci_modifica_su_cessione();
 
 
+-- ---------------------------------------------
+-- Non è possibile eliminare un veicolo immatricolato
+-- Deve essere rottamato prima del poter essere eliminato
+-- ---------------------------------------------
+
 create or replace function elimina_veicolo_rottamato()
 returns trigger
 language plpgsql as
@@ -219,7 +224,7 @@ $$
             set search_path to MotorizzazioneCivile, public;
 
             if ( old.rottamato is false ) then 
-                raise exception 'Non è possibile eliminare un veicolo già immatricolato';
+                raise exception 'Non è possibile eliminare un veicolo immatricolato';
                 return null;
             end if;
 
@@ -231,6 +236,10 @@ before delete on veicoloimmatricolato
 for each row
 execute procedure elimina_veicolo_rottamato(); 
 
+
+-- ---------------------------------------------
+-- se la data di fine produzione è precedente a quella d'inizio produzione ignora
+-- ---------------------------------------------
 
 create or replace function controlla_data_produzione()
 returns trigger
